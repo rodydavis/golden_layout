@@ -12,5 +12,5 @@ class WindowController {
     _fullScreenGroup = null;
   }
 
-  final base = WindowColumn([]);
+  WindowCollection base = WindowColumn([]);
 }

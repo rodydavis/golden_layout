@@ -57,17 +57,55 @@ class _GoldenLayoutState extends State<GoldenLayout> {
         ),
       );
     }
-    return _renderItem(_controller.base);
+    return _renderItem(
+      _controller.base,
+      0,
+      onChanged: (val) {
+        if (mounted)
+          setState(() {
+            _controller.base = val;
+          });
+      },
+      onClose: (val) {
+        if (mounted)
+          setState(() {
+            _controller.base = null;
+          });
+      },
+    );
   }
 
-  Widget _renderItem(WindowCollection item) {
+  Widget _renderItem(
+    WindowCollection item,
+    int index, {
+    ValueChanged<WindowCollection> onChanged,
+    ValueChanged<WindowCollection> onClose,
+  }) {
     if (item is WindowColumn) {
       return Column(
         children: [
           for (var i = 0; i < item.children.length; i++)
             Flexible(
               flex: item.children[i].flex,
-              child: _renderItem(item.children[i]),
+              child: _renderItem(
+                item.children[i],
+                i,
+                onChanged: (val) {
+                  if (mounted)
+                    setState(() {
+                      item.children[i] = val;
+                    });
+                },
+                onClose: (val) {
+                  if (mounted)
+                    setState(() {
+                      item.children.remove(val);
+                    });
+                  if (item.children.isEmpty) {
+                    onClose(item);
+                  }
+                },
+              ),
             ),
         ],
       );
@@ -78,14 +116,32 @@ class _GoldenLayoutState extends State<GoldenLayout> {
           for (var i = 0; i < item.children.length; i++) ...[
             Flexible(
               flex: item.children[i].flex,
-              child: _renderItem(item.children[i]),
+              child: _renderItem(
+                item.children[i],
+                i,
+                onChanged: (val) {
+                  if (mounted)
+                    setState(() {
+                      item.children[i] = val;
+                    });
+                },
+                onClose: (val) {
+                  if (mounted)
+                    setState(() {
+                      item.children.remove(val);
+                    });
+                  if (item.children.isEmpty) {
+                    onClose(item);
+                  }
+                },
+              ),
             ),
             if (i != item.children.length - 1)
               VerticalDivider(
                 width: 8,
                 color: Colors.black,
                 thickness: 8,
-              )
+              ),
           ],
         ],
       );
@@ -105,8 +161,29 @@ class _GoldenLayoutState extends State<GoldenLayout> {
             setState(() {
               item.close();
             });
+          if (item.tabs.isEmpty) {
+            onClose(item);
+          }
         },
         update: () {
+          if (mounted) setState(() {});
+        },
+        onModify: (context, tab, pos) {
+          final _group = WindowGroup()..addTab(tab);
+          switch (pos) {
+            case WindowPos.top:
+              onChanged(WindowColumn([_group, item]));
+              break;
+            case WindowPos.left:
+              onChanged(WindowRow([_group, item]));
+              break;
+            case WindowPos.bottom:
+              onChanged(WindowColumn([item, _group]));
+              break;
+            case WindowPos.right:
+              onChanged(WindowRow([item, _group]));
+              break;
+          }
           if (mounted) setState(() {});
         },
       );
@@ -115,12 +192,15 @@ class _GoldenLayoutState extends State<GoldenLayout> {
   }
 }
 
+enum WindowPos { top, left, bottom, right }
+
 class RenderWindowGroup extends StatelessWidget {
   final WindowGroup group;
   final VoidCallback onFullScreen, onClose, update;
   final bool minimize;
   final VoidCallback onTabLongPress, onTapEnd;
   final Size popUpSize;
+  final void Function(BuildContext, WindowTab, WindowPos) onModify;
 
   const RenderWindowGroup({
     Key key,
@@ -132,6 +212,7 @@ class RenderWindowGroup extends StatelessWidget {
     this.onTabLongPress,
     this.onTapEnd,
     @required this.popUpSize,
+    this.onModify,
   }) : super(key: key);
 
   @override
@@ -222,6 +303,7 @@ class RenderWindowGroup extends StatelessWidget {
                             onTap: () {
                               group.removeTab(group.tabs[i]);
                               update();
+                              if (group.tabs.isEmpty) onClose();
                             },
                           ),
                         ],
@@ -259,7 +341,7 @@ class RenderWindowGroup extends StatelessWidget {
                   width: dimens.maxWidth,
                   height: dimens.minHeight * 0.5,
                   child: WindowAcceptRegion(
-                    onAccept: (val) {},
+                    onAccept: (val) => onModify(context, val, WindowPos.top),
                   ),
                 ),
                 Positioned(
@@ -267,7 +349,7 @@ class RenderWindowGroup extends StatelessWidget {
                   width: dimens.maxWidth,
                   height: dimens.minHeight * 0.5,
                   child: WindowAcceptRegion(
-                    onAccept: (val) {},
+                    onAccept: (val) => onModify(context, val, WindowPos.bottom),
                   ),
                 ),
                 Positioned(
@@ -276,7 +358,7 @@ class RenderWindowGroup extends StatelessWidget {
                   height: dimens.minHeight,
                   child: WindowAcceptRegion(
                     left: dimens.maxWidth * 0.2,
-                    onAccept: (val) {},
+                    onAccept: (val) => onModify(context, val, WindowPos.right),
                   ),
                 ),
                 Positioned(
@@ -285,7 +367,7 @@ class RenderWindowGroup extends StatelessWidget {
                   height: dimens.minHeight,
                   child: WindowAcceptRegion(
                     right: dimens.maxWidth * 0.2,
-                    onAccept: (val) {},
+                    onAccept: (val) => onModify(context, val, WindowPos.left),
                   ),
                 ),
               ],

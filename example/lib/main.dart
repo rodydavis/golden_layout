@@ -36,7 +36,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     final _group = WindowGroup();
     _group.addTab(_getTab(0));
-    _controller.base.children.add(_group);
+    (_controller.base as WindowColumn).children.add(_group);
     super.initState();
   }
 
@@ -52,8 +52,8 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: () {
               if (mounted)
                 setState(() {
-                  final _group = _controller.base.children[0] as WindowGroup;
-                  _group.addTab(_getTab(_group.tabs.length + 1));
+                  _controller.base =
+                      WindowColumn([WindowGroup()..addTab(_getTab(0))]);
                 });
             },
           ),
@@ -65,7 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 setState(() {
                   final _group = WindowGroup();
                   _group.addTab(_getTab(3));
-                  _controller.base.children.add(_group);
+                  (_controller.base as WindowColumn).children.add(_group);
                 });
             },
           ),
@@ -77,7 +77,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 setState(() {
                   final _group1 = WindowGroup()..addTab(_getTab(2));
                   final _group2 = WindowGroup()..addTab(_getTab(2));
-                  _controller.base.children.add(WindowRow([_group1, _group2]));
+                  (_controller.base as WindowColumn)
+                      .children
+                      .add(WindowRow([_group1, _group2]));
                 });
             },
           ),

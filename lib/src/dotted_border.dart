@@ -66,6 +66,7 @@ class DashRectPainter extends CustomPainter {
     );
 
     canvas.drawPath(_topPath, dashedPaint);
+    canvas.drawShadow(_topPath, Colors.black, 4, false);
     canvas.drawPath(_rightPath, dashedPaint);
     canvas.drawPath(_bottomPath, dashedPaint);
     canvas.drawPath(_leftPath, dashedPaint);
