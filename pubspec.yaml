@@ -1,0 +1,19 @@
+name: golden_layout
+description: A new Flutter package project.
+version: 0.0.1
+author:
+homepage:
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  undo: ^1.0.1+3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
