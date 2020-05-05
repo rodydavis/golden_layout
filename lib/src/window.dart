@@ -1,6 +1,8 @@
 import 'tab.dart';
 
-abstract class WindowCollection {}
+abstract class WindowCollection {
+  int flex = 1;
+}
 
 class WindowRow extends WindowCollection {
   final List<WindowCollection> children;

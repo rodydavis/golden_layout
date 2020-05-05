@@ -64,10 +64,10 @@ class _GoldenLayoutState extends State<GoldenLayout> {
     if (item is WindowColumn) {
       return Column(
         children: [
-          for (final item in item.children)
+          for (var i = 0; i < item.children.length; i++)
             Flexible(
-              flex: 1,
-              child: _renderItem(item),
+              flex: item.children[i].flex,
+              child: _renderItem(item.children[i]),
             ),
         ],
       );
@@ -75,11 +75,18 @@ class _GoldenLayoutState extends State<GoldenLayout> {
     if (item is WindowRow) {
       return Row(
         children: [
-          for (final item in item.children)
+          for (var i = 0; i < item.children.length; i++) ...[
             Flexible(
-              flex: 1,
-              child: _renderItem(item),
+              flex: item.children[i].flex,
+              child: _renderItem(item.children[i]),
             ),
+            if (i != item.children.length - 1)
+              VerticalDivider(
+                width: 8,
+                color: Colors.black,
+                thickness: 8,
+              )
+          ],
         ],
       );
     }
@@ -144,11 +151,23 @@ class RenderWindowGroup extends StatelessWidget {
                   feedback: Column(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Material(
-                      //   elevation: 8,
-                      //   child: Text(group.tabs[i].title),
-                      // ),
+                      Material(
+                        elevation: 8,
+                        color: Colors.grey.shade600,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(5),
+                          topRight: Radius.circular(5),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            group.tabs[i].title,
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
                       SizedBox.fromSize(
                         size: popUpSize,
                         child: Material(
@@ -288,7 +307,7 @@ class WindowAcceptRegion extends StatefulWidget {
     this.bottom,
   }) : super(key: key);
 
-  final Function(WindowTab) onAccept;
+  final void Function(WindowTab) onAccept;
   final double top, left, right, bottom;
 
   @override

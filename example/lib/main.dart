@@ -53,7 +53,31 @@ class _MyHomePageState extends State<MyHomePage> {
               if (mounted)
                 setState(() {
                   final _group = _controller.base.children[0] as WindowGroup;
-                  _group.addTab(_getTab(_group.tabs.length));
+                  _group.addTab(_getTab(_group.tabs.length + 1));
+                });
+            },
+          ),
+          IconButton(
+            tooltip: 'Add Group',
+            icon: Icon(Icons.tab),
+            onPressed: () {
+              if (mounted)
+                setState(() {
+                  final _group = WindowGroup();
+                  _group.addTab(_getTab(3));
+                  _controller.base.children.add(_group);
+                });
+            },
+          ),
+          IconButton(
+            tooltip: 'Add Row',
+            icon: Icon(Icons.list),
+            onPressed: () {
+              if (mounted)
+                setState(() {
+                  final _group1 = WindowGroup()..addTab(_getTab(2));
+                  final _group2 = WindowGroup()..addTab(_getTab(2));
+                  _controller.base.children.add(WindowRow([_group1, _group2]));
                 });
             },
           ),
