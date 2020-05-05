@@ -48,7 +48,7 @@ class _GoldenLayoutState extends State<GoldenLayout> {
           onClose: () {
             if (mounted)
               setState(() {
-                _controller.fullScreen.close();
+                _controller.exitFullScreen(true);
               });
           },
           update: () {
@@ -153,7 +153,7 @@ class _GoldenLayoutState extends State<GoldenLayout> {
         onFullScreen: () {
           if (mounted)
             setState(() {
-              _controller.enterFullScreen(item);
+              _controller.enterFullScreen(item, onClose);
             });
         },
         onClose: () {
