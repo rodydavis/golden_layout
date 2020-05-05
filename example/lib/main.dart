@@ -31,11 +31,12 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final _controller = WindowController();
+  int _count = 0;
 
   @override
   void initState() {
     final _group = WindowGroup();
-    _group.addTab(_getTab(0));
+    _group.addTab(_getTab(_count++));
     (_controller.base as WindowColumn).children.add(_group);
     super.initState();
   }
@@ -53,7 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
               if (mounted)
                 setState(() {
                   _controller.base =
-                      WindowColumn([WindowGroup()..addTab(_getTab(0))]);
+                      WindowColumn([WindowGroup()..addTab(_getTab(_count++))]);
                 });
             },
           ),
@@ -64,7 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
               if (mounted)
                 setState(() {
                   final _group = WindowGroup();
-                  _group.addTab(_getTab(3));
+                  _group.addTab(_getTab(_count++));
                   (_controller.base as WindowColumn).children.add(_group);
                 });
             },
@@ -75,8 +76,8 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: () {
               if (mounted)
                 setState(() {
-                  final _group1 = WindowGroup()..addTab(_getTab(2));
-                  final _group2 = WindowGroup()..addTab(_getTab(2));
+                  final _group1 = WindowGroup()..addTab(_getTab(_count++));
+                  final _group2 = WindowGroup()..addTab(_getTab(_count++));
                   (_controller.base as WindowColumn)
                       .children
                       .add(WindowRow([_group1, _group2]));

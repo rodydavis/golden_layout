@@ -148,6 +148,13 @@ class _GoldenLayoutState extends State<GoldenLayout> {
     }
     if (item is WindowGroup) {
       return RenderWindowGroup(
+        onDraggingChanged: (val) {
+          if (mounted)
+            setState(() {
+              _isDragging = val;
+            });
+        },
+        isDragging: _isDragging,
         popUpSize: widget.popupSize,
         group: item,
         onFullScreen: () {
@@ -190,6 +197,8 @@ class _GoldenLayoutState extends State<GoldenLayout> {
     }
     return Container();
   }
+
+  bool _isDragging = false;
 }
 
 enum WindowPos { top, left, bottom, right }
@@ -199,6 +208,8 @@ class RenderWindowGroup extends StatelessWidget {
   final VoidCallback onFullScreen, onClose, update;
   final bool minimize;
   final Size popUpSize;
+  final bool isDragging;
+  final ValueChanged<bool> onDraggingChanged;
   final void Function(BuildContext, WindowTab, WindowPos) onModify;
 
   const RenderWindowGroup({
@@ -209,6 +220,8 @@ class RenderWindowGroup extends StatelessWidget {
     this.minimize = false,
     this.update,
     @required this.popUpSize,
+    @required this.onDraggingChanged,
+    @required this.isDragging,
     this.onModify,
   }) : super(key: key);
 
@@ -230,6 +243,16 @@ class RenderWindowGroup extends StatelessWidget {
                     group.removeTab(group.tabs[i]);
                     update();
                     if (group.tabs.isEmpty) onClose();
+                    onDraggingChanged(true);
+                  },
+                  onDragCompleted: () {
+                    onDraggingChanged(false);
+                  },
+                  onDragEnd: (_) {
+                    onDraggingChanged(false);
+                  },
+                  onDraggableCanceled: (_, __) {
+                    onDraggingChanged(false);
                   },
                   feedback: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -311,6 +334,14 @@ class RenderWindowGroup extends StatelessWidget {
                     ),
                   ),
                 ),
+              if (isDragging)
+                WindowAcceptRegion(
+                  size: Size(100, 32),
+                  onAccept: (val) {
+                    group.addTab(val);
+                    update();
+                  },
+                ),
               Spacer(),
               IconButton(
                 color: Colors.white,
@@ -387,10 +418,12 @@ class WindowAcceptRegion extends StatefulWidget {
     this.left,
     this.right,
     this.bottom,
+    this.size,
   }) : super(key: key);
 
   final void Function(WindowTab) onAccept;
   final double top, left, right, bottom;
+  final Size size;
 
   @override
   _WindowAcceptRegionState createState() => _WindowAcceptRegionState();
@@ -400,49 +433,52 @@ class _WindowAcceptRegionState extends State<WindowAcceptRegion> {
   bool accepting = false;
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, dimens) => Stack(
-        fit: StackFit.expand,
-        children: [
-          IgnorePointer(
-            child: DashedRect(
-              color: accepting ? Colors.white : Colors.transparent,
-              strokeWidth: 2.0,
-              gap: 5.0,
-            ),
-          ),
-          Positioned.fill(
-            left: widget?.left ?? 0,
-            right: widget?.right ?? 0,
-            top: widget?.top ?? 0,
-            bottom: widget?.bottom ?? 0,
-            child: Container(
-              child: DragTarget<WindowTab>(
-                builder: (context, accepted, rejected) => Container(),
-                onAccept: (val) {
-                  if (mounted)
-                    setState(() {
-                      accepting = false;
-                    });
-                  if (widget.onAccept != null) widget.onAccept(val);
-                },
-                onWillAccept: (val) {
-                  if (mounted)
-                    setState(() {
-                      accepting = true;
-                    });
-                  return true;
-                },
-                onLeave: (_) {
-                  if (mounted)
-                    setState(() {
-                      accepting = false;
-                    });
-                },
+    return SizedBox.fromSize(
+      size: widget?.size,
+      child: LayoutBuilder(
+        builder: (context, dimens) => Stack(
+          fit: StackFit.expand,
+          children: [
+            IgnorePointer(
+              child: DashedRect(
+                color: accepting ? Colors.white : Colors.transparent,
+                strokeWidth: 2.0,
+                gap: 5.0,
               ),
             ),
-          ),
-        ],
+            Positioned.fill(
+              left: widget?.left ?? 0,
+              right: widget?.right ?? 0,
+              top: widget?.top ?? 0,
+              bottom: widget?.bottom ?? 0,
+              child: Container(
+                child: DragTarget<WindowTab>(
+                  builder: (context, accepted, rejected) => Container(),
+                  onAccept: (val) {
+                    if (mounted)
+                      setState(() {
+                        accepting = false;
+                      });
+                    if (widget.onAccept != null) widget.onAccept(val);
+                  },
+                  onWillAccept: (val) {
+                    if (mounted)
+                      setState(() {
+                        accepting = true;
+                      });
+                    return true;
+                  },
+                  onLeave: (_) {
+                    if (mounted)
+                      setState(() {
+                        accepting = false;
+                      });
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
