@@ -198,7 +198,6 @@ class RenderWindowGroup extends StatelessWidget {
   final WindowGroup group;
   final VoidCallback onFullScreen, onClose, update;
   final bool minimize;
-  final VoidCallback onTabLongPress, onTapEnd;
   final Size popUpSize;
   final void Function(BuildContext, WindowTab, WindowPos) onModify;
 
@@ -209,8 +208,6 @@ class RenderWindowGroup extends StatelessWidget {
     this.onClose,
     this.minimize = false,
     this.update,
-    this.onTabLongPress,
-    this.onTapEnd,
     @required this.popUpSize,
     this.onModify,
   }) : super(key: key);
@@ -229,6 +226,11 @@ class RenderWindowGroup extends StatelessWidget {
                 Draggable<WindowTab>(
                   data: group.tabs[i],
                   dragAnchor: DragAnchor.pointer,
+                  onDragStarted: () {
+                    group.removeTab(group.tabs[i]);
+                    update();
+                    if (group.tabs.isEmpty) onClose();
+                  },
                   feedback: Column(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -259,8 +261,6 @@ class RenderWindowGroup extends StatelessWidget {
                     ],
                   ),
                   child: InkWell(
-                    onLongPress: onTabLongPress,
-                    onTapCancel: onTapEnd,
                     onTap: () {
                       group.selectTab(i);
                       update();
