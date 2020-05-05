@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'src/controller.dart';
-import 'src/dotted_border.dart';
-import 'src/tab.dart';
 import 'src/window.dart';
+import 'src/window_group.dart';
 
 export 'src/controller.dart';
 export 'src/tab.dart';
@@ -36,6 +35,13 @@ class _GoldenLayoutState extends State<GoldenLayout> {
     if (_controller.fullScreen != null) {
       return Container(
         child: RenderWindowGroup(
+          isDragging: _isDragging,
+          onDraggingChanged: (val) {
+            if (mounted)
+              setState(() {
+                _isDragging = val;
+              });
+          },
           popUpSize: widget.popupSize,
           minimize: true,
           group: _controller.fullScreen,
@@ -84,7 +90,7 @@ class _GoldenLayoutState extends State<GoldenLayout> {
     if (item is WindowColumn) {
       return Column(
         children: [
-          for (var i = 0; i < item.children.length; i++)
+          for (var i = 0; i < item.children.length; i++) ...[
             Flexible(
               flex: item.children[i].flex,
               child: _renderItem(
@@ -107,6 +113,12 @@ class _GoldenLayoutState extends State<GoldenLayout> {
                 },
               ),
             ),
+            if (i != item.children.length - 1)
+              GestureDetector(
+                onHorizontalDragUpdate: (val) {},
+                child: HorizontalDragBar(),
+              ),
+          ],
         ],
       );
     }
@@ -137,10 +149,9 @@ class _GoldenLayoutState extends State<GoldenLayout> {
               ),
             ),
             if (i != item.children.length - 1)
-              VerticalDivider(
-                width: 8,
-                color: Colors.black,
-                thickness: 8,
+              GestureDetector(
+                onHorizontalDragUpdate: (val) {},
+                child: VerticalDragBar(),
               ),
           ],
         ],
@@ -201,286 +212,71 @@ class _GoldenLayoutState extends State<GoldenLayout> {
   bool _isDragging = false;
 }
 
-enum WindowPos { top, left, bottom, right }
-
-class RenderWindowGroup extends StatelessWidget {
-  final WindowGroup group;
-  final VoidCallback onFullScreen, onClose, update;
-  final bool minimize;
-  final Size popUpSize;
-  final bool isDragging;
-  final ValueChanged<bool> onDraggingChanged;
-  final void Function(BuildContext, WindowTab, WindowPos) onModify;
-
-  const RenderWindowGroup({
+class HorizontalDragBar extends StatefulWidget {
+  const HorizontalDragBar({
     Key key,
-    this.group,
-    this.onFullScreen,
-    this.onClose,
-    this.minimize = false,
-    this.update,
-    @required this.popUpSize,
-    @required this.onDraggingChanged,
-    @required this.isDragging,
-    this.onModify,
   }) : super(key: key);
 
   @override
+  _HorizontalDragBarState createState() => _HorizontalDragBarState();
+}
+
+class _HorizontalDragBarState extends State<HorizontalDragBar> {
+  bool _onHover = false;
+  @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          color: Colors.black,
-          height: 32,
-          child: Row(
-            children: [
-              Container(width: 4),
-              for (var i = 0; i < group.tabs.length; i++)
-                Draggable<WindowTab>(
-                  data: group.tabs[i],
-                  dragAnchor: DragAnchor.pointer,
-                  onDragStarted: () {
-                    group.removeTab(group.tabs[i]);
-                    update();
-                    if (group.tabs.isEmpty) onClose();
-                    onDraggingChanged(true);
-                  },
-                  onDragCompleted: () {
-                    onDraggingChanged(false);
-                  },
-                  onDragEnd: (_) {
-                    onDraggingChanged(false);
-                  },
-                  onDraggableCanceled: (_, __) {
-                    onDraggingChanged(false);
-                  },
-                  feedback: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Material(
-                        elevation: 8,
-                        color: Colors.grey.shade600,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(5),
-                          topRight: Radius.circular(5),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            group.tabs[i].title,
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ),
-                      SizedBox.fromSize(
-                        size: popUpSize,
-                        child: Material(
-                          elevation: 8,
-                          child: group.tabs[i].child,
-                        ),
-                      ),
-                    ],
-                  ),
-                  child: InkWell(
-                    onTap: () {
-                      group.selectTab(i);
-                      update();
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: i == group.activeTabIndex
-                            ? Colors.grey.shade600
-                            : null,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(5),
-                          topRight: Radius.circular(5),
-                        ),
-                      ),
-                      padding: EdgeInsets.only(
-                        left: 4,
-                        right: 4,
-                        bottom: 4,
-                      ),
-                      margin: EdgeInsets.only(
-                        top: 4,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            group.tabs[i].title,
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                          Container(width: 4),
-                          InkWell(
-                            child: Icon(
-                              Icons.close,
-                              size: 18,
-                              color: Colors.white,
-                            ),
-                            onTap: () {
-                              group.removeTab(group.tabs[i]);
-                              update();
-                              if (group.tabs.isEmpty) onClose();
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              if (isDragging)
-                WindowAcceptRegion(
-                  size: Size(100, 32),
-                  onAccept: (val) {
-                    group.addTab(val);
-                    update();
-                  },
-                ),
-              Spacer(),
-              IconButton(
-                color: Colors.white,
-                iconSize: 18,
-                icon: Icon(minimize ? Icons.minimize : Icons.fullscreen),
-                onPressed: onFullScreen,
-              ),
-              IconButton(
-                color: Colors.white,
-                iconSize: 18,
-                icon: Icon(Icons.close),
-                onPressed: onClose,
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: LayoutBuilder(
-            builder: (context, dimens) => Stack(
-              children: [
-                Positioned.fill(
-                  child: group.tabs.isEmpty
-                      ? Container()
-                      : group.tabs[group.activeTabIndex].child ?? Container(),
-                ),
-                Positioned(
-                  top: 0,
-                  width: dimens.maxWidth,
-                  height: dimens.minHeight * 0.5,
-                  child: WindowAcceptRegion(
-                    onAccept: (val) => onModify(context, val, WindowPos.top),
-                  ),
-                ),
-                Positioned(
-                  bottom: 0,
-                  width: dimens.maxWidth,
-                  height: dimens.minHeight * 0.5,
-                  child: WindowAcceptRegion(
-                    onAccept: (val) => onModify(context, val, WindowPos.bottom),
-                  ),
-                ),
-                Positioned(
-                  right: 0,
-                  width: dimens.maxWidth * 0.5,
-                  height: dimens.minHeight,
-                  child: WindowAcceptRegion(
-                    left: dimens.maxWidth * 0.2,
-                    onAccept: (val) => onModify(context, val, WindowPos.right),
-                  ),
-                ),
-                Positioned(
-                  left: 0,
-                  width: dimens.maxWidth * 0.5,
-                  height: dimens.minHeight,
-                  child: WindowAcceptRegion(
-                    right: dimens.maxWidth * 0.2,
-                    onAccept: (val) => onModify(context, val, WindowPos.left),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
+    return MouseRegion(
+      onEnter: (_) {
+        if (mounted)
+          setState(() {
+            _onHover = true;
+          });
+      },
+      onExit: (_) {
+        if (mounted)
+          setState(() {
+            _onHover = false;
+          });
+      },
+      child: Divider(
+        height: 8,
+        color: _onHover ? Colors.grey : Colors.black,
+        thickness: 8,
+      ),
     );
   }
 }
 
-class WindowAcceptRegion extends StatefulWidget {
-  const WindowAcceptRegion({
+class VerticalDragBar extends StatefulWidget {
+  const VerticalDragBar({
     Key key,
-    this.onAccept,
-    this.top,
-    this.left,
-    this.right,
-    this.bottom,
-    this.size,
   }) : super(key: key);
 
-  final void Function(WindowTab) onAccept;
-  final double top, left, right, bottom;
-  final Size size;
-
   @override
-  _WindowAcceptRegionState createState() => _WindowAcceptRegionState();
+  _VerticalDragBarState createState() => _VerticalDragBarState();
 }
 
-class _WindowAcceptRegionState extends State<WindowAcceptRegion> {
-  bool accepting = false;
+class _VerticalDragBarState extends State<VerticalDragBar> {
+  bool _onHover = false;
   @override
   Widget build(BuildContext context) {
-    return SizedBox.fromSize(
-      size: widget?.size,
-      child: LayoutBuilder(
-        builder: (context, dimens) => Stack(
-          fit: StackFit.expand,
-          children: [
-            IgnorePointer(
-              child: DashedRect(
-                color: accepting ? Colors.white : Colors.transparent,
-                shadowColor:
-                    accepting ? Colors.grey.shade300 : Colors.transparent,
-                strokeWidth: 2.0,
-                gap: 5.0,
-              ),
-            ),
-            Positioned.fill(
-              left: widget?.left ?? 0,
-              right: widget?.right ?? 0,
-              top: widget?.top ?? 0,
-              bottom: widget?.bottom ?? 0,
-              child: Container(
-                child: DragTarget<WindowTab>(
-                  builder: (context, accepted, rejected) => Container(),
-                  onAccept: (val) {
-                    if (mounted)
-                      setState(() {
-                        accepting = false;
-                      });
-                    if (widget.onAccept != null) widget.onAccept(val);
-                  },
-                  onWillAccept: (val) {
-                    if (mounted)
-                      setState(() {
-                        accepting = true;
-                      });
-                    return true;
-                  },
-                  onLeave: (_) {
-                    if (mounted)
-                      setState(() {
-                        accepting = false;
-                      });
-                  },
-                ),
-              ),
-            ),
-          ],
-        ),
+    return MouseRegion(
+      onEnter: (_) {
+        if (mounted)
+          setState(() {
+            _onHover = true;
+          });
+      },
+      onExit: (_) {
+        if (mounted)
+          setState(() {
+            _onHover = false;
+          });
+      },
+      child: VerticalDivider(
+        width: 8,
+        color: _onHover ? Colors.grey : Colors.black,
+        thickness: 8,
       ),
     );
   }
