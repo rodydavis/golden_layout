@@ -4,14 +4,12 @@ class GoldenLayoutThemeData {
   final Color tabSelectedBackgroundColor;
   final Color backgroundColor;
   final Color draggableBarsHoveredColor;
-  final Color tabLabelTextColor;
   final Color tabIconColor;
 
   const GoldenLayoutThemeData({
     this.tabSelectedBackgroundColor = Colors.grey,
     this.backgroundColor = Colors.black,
     this.draggableBarsHoveredColor = Colors.grey,
-    this.tabLabelTextColor = Colors.white,
     this.tabIconColor = Colors.white,
   });
 }

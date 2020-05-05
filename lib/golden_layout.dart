@@ -6,7 +6,6 @@ import 'src/window.dart';
 import 'src/window_group.dart';
 
 export 'src/controller.dart';
-export 'src/tab.dart';
 export 'src/window.dart';
 export 'src/theme.dart';
 

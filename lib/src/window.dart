@@ -1,7 +1,21 @@
-import 'tab.dart';
+import 'package:flutter/material.dart';
 
 abstract class WindowCollection {
   double flex = 1;
+}
+
+class WindowTab {
+  final String id;
+  final Function (BuildContext, bool selected) title;
+  final Widget child;
+  final bool canClose;
+
+  WindowTab({
+    @required this.id,
+    @required this.title,
+    this.child,
+    this.canClose = true,
+  });
 }
 
 class WindowRow extends WindowCollection {

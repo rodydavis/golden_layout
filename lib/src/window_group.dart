@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'border_accept.dart';
-import 'tab.dart';
 import 'theme.dart';
 import 'window.dart';
 
@@ -81,13 +80,7 @@ class RenderWindowGroup extends StatelessWidget {
                                 ),
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    group.tabs[i].title,
-                                    style: TextStyle(
-                                      color: _theme?.tabLabelTextColor ??
-                                          Colors.white,
-                                    ),
-                                  ),
+                                  child: group.tabs[i].title(context, true),
                                 ),
                               ),
                               SizedBox.fromSize(
@@ -128,13 +121,7 @@ class RenderWindowGroup extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  Text(
-                                    group.tabs[i].title,
-                                    style: TextStyle(
-                                      color: _theme?.tabLabelTextColor ??
-                                          Colors.white,
-                                    ),
-                                  ),
+                                  group.tabs[i].title(context, false),
                                   if (group.tabs[i].canClose) ...[
                                     Container(width: 4),
                                     InkWell(

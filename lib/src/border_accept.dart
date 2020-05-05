@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'dotted_border.dart';
-import 'tab.dart';
+import 'window.dart';
 
 class WindowAcceptRegion extends StatefulWidget {
   const WindowAcceptRegion({

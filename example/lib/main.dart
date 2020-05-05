@@ -99,7 +99,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   WindowTab _getTab(int count) {
     return WindowTab(
-        title: 'Window $count',
+        id: 'id_$count',
+        title: (context, selected) => Text(
+              'Window $count',
+              style: TextStyle(
+                color: selected ? Theme.of(context).accentColor : Colors.white,
+              ),
+            ),
         child: Container(color: Colors.red[100 * count]));
   }
 }
