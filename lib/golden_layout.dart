@@ -11,6 +11,7 @@ export 'src/window.dart';
 class GoldenLayout extends StatefulWidget {
   final WindowController controller;
   final Size popupSize;
+
   const GoldenLayout({
     Key key,
     this.controller,
@@ -32,9 +33,9 @@ class _GoldenLayoutState extends State<GoldenLayout> {
 
   @override
   Widget build(BuildContext context) {
-    if (_controller.fullScreen != null) {
-      return Container(
-        child: RenderWindowGroup(
+    return LayoutBuilder(builder: (context, dimens) {
+      if (_controller.fullScreen != null) {
+        return RenderWindowGroup(
           isDragging: _isDragging,
           onDraggingChanged: (val) {
             if (mounted)
@@ -60,62 +61,74 @@ class _GoldenLayoutState extends State<GoldenLayout> {
           update: () {
             if (mounted) setState(() {});
           },
-        ),
+        );
+      }
+      return _renderItem(
+        _controller.base,
+        index: 0,
+        size: Size(dimens.maxWidth, dimens.maxHeight),
+        onChanged: (val) {
+          if (mounted)
+            setState(() {
+              _controller.base = val;
+            });
+        },
+        onClose: (val) {
+          if (mounted)
+            setState(() {
+              _controller.base = null;
+            });
+        },
       );
-    }
-    return _renderItem(
-      _controller.base,
-      0,
-      onChanged: (val) {
-        if (mounted)
-          setState(() {
-            _controller.base = val;
-          });
-      },
-      onClose: (val) {
-        if (mounted)
-          setState(() {
-            _controller.base = null;
-          });
-      },
-    );
+    });
   }
 
   Widget _renderItem(
-    WindowCollection item,
-    int index, {
-    ValueChanged<WindowCollection> onChanged,
-    ValueChanged<WindowCollection> onClose,
+    WindowCollection item, {
+    @required int index,
+    @required Size size,
+    @required ValueChanged<WindowCollection> onChanged,
+    @required ValueChanged<WindowCollection> onClose,
   }) {
     if (item is WindowColumn) {
       return Column(
         children: [
           for (var i = 0; i < item.children.length; i++) ...[
             Flexible(
-              flex: item.children[i].flex,
-              child: _renderItem(
-                item.children[i],
-                i,
-                onChanged: (val) {
-                  if (mounted)
-                    setState(() {
-                      item.children[i] = val;
-                    });
-                },
-                onClose: (val) {
-                  if (mounted)
-                    setState(() {
-                      item.children.remove(val);
-                    });
-                  if (item.children.isEmpty) {
-                    onClose(item);
-                  }
-                },
+              flex: (size.height * item.children[i].flex).round(),
+              child: LayoutBuilder(
+                builder: (context, dimens) => _renderItem(
+                  item.children[i],
+                  index: i,
+                  size: Size(dimens.maxWidth, dimens.maxHeight),
+                  onChanged: (val) {
+                    if (mounted)
+                      setState(() {
+                        item.children[i] = val;
+                      });
+                  },
+                  onClose: (val) {
+                    if (mounted)
+                      setState(() {
+                        item.children.remove(val);
+                      });
+                    if (item.children.isEmpty) {
+                      onClose(item);
+                    }
+                  },
+                ),
               ),
             ),
             if (i != item.children.length - 1)
               GestureDetector(
-                onHorizontalDragUpdate: (val) {},
+                onVerticalDragUpdate: (val) {
+                  final _current = size.height * item.children[i].flex;
+                  final _height = val.delta.dy + _current;
+                  if (mounted)
+                    setState(() {
+                      item.children[i].flex = _height / size.height;
+                    });
+                },
                 child: HorizontalDragBar(),
               ),
           ],
@@ -127,30 +140,40 @@ class _GoldenLayoutState extends State<GoldenLayout> {
         children: [
           for (var i = 0; i < item.children.length; i++) ...[
             Flexible(
-              flex: item.children[i].flex,
-              child: _renderItem(
-                item.children[i],
-                i,
-                onChanged: (val) {
-                  if (mounted)
-                    setState(() {
-                      item.children[i] = val;
-                    });
-                },
-                onClose: (val) {
-                  if (mounted)
-                    setState(() {
-                      item.children.remove(val);
-                    });
-                  if (item.children.isEmpty) {
-                    onClose(item);
-                  }
-                },
+              flex: (size.width * item.children[i].flex).round(),
+              child: LayoutBuilder(
+                builder: (context, dimens) => _renderItem(
+                  item.children[i],
+                  index: i,
+                  size: Size(dimens.maxWidth, dimens.maxHeight),
+                  onChanged: (val) {
+                    if (mounted)
+                      setState(() {
+                        item.children[i] = val;
+                      });
+                  },
+                  onClose: (val) {
+                    if (mounted)
+                      setState(() {
+                        item.children.remove(val);
+                      });
+                    if (item.children.isEmpty) {
+                      onClose(item);
+                    }
+                  },
+                ),
               ),
             ),
             if (i != item.children.length - 1)
               GestureDetector(
-                onHorizontalDragUpdate: (val) {},
+                onHorizontalDragUpdate: (val) {
+                  final _current = size.width * item.children[i].flex;
+                  final _width = val.delta.dx + _current;
+                  if (mounted)
+                    setState(() {
+                      item.children[i].flex = _width / size.width;
+                    });
+                },
                 child: VerticalDragBar(),
               ),
           ],

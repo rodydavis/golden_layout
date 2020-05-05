@@ -1,7 +1,7 @@
 import 'tab.dart';
 
 abstract class WindowCollection {
-  int flex = 1;
+  double flex = 1;
 }
 
 class WindowRow extends WindowCollection {
