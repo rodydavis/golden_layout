@@ -76,15 +76,14 @@ class DashRectPainter extends CustomPainter {
       b: math.Point(0.001, y),
       gap: gap,
     );
-
-    canvas.drawPath(_topPath, dashedPaint);
-    canvas.drawPath(_rightPath, dashedPaint);
-    canvas.drawPath(_bottomPath, dashedPaint);
-    canvas.drawPath(_leftPath, dashedPaint);
     canvas.drawPath(_topPath, dashedPaint..color = shadowColor);
     canvas.drawPath(_rightPath, dashedPaint..color = shadowColor);
     canvas.drawPath(_bottomPath, dashedPaint..color = shadowColor);
     canvas.drawPath(_leftPath, dashedPaint..color = shadowColor);
+    canvas.drawPath(_topPath, dashedPaint);
+    canvas.drawPath(_rightPath, dashedPaint);
+    canvas.drawPath(_bottomPath, dashedPaint);
+    canvas.drawPath(_leftPath, dashedPaint);
   }
 
   Path getDashedPath({
