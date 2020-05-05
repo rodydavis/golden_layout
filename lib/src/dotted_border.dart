@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
 class DashedRect extends StatelessWidget {
-  final Color color;
+  final Color color, shadowColor;
   final double strokeWidth;
   final double gap;
 
-  DashedRect(
-      {this.color = Colors.black, this.strokeWidth = 1.0, this.gap = 5.0});
+  DashedRect({
+    this.color = Colors.black,
+    this.shadowColor = Colors.transparent,
+    this.strokeWidth = 1.0,
+    this.gap = 5.0,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,8 +19,12 @@ class DashedRect extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.all(strokeWidth / 2),
         child: CustomPaint(
-          painter:
-              DashRectPainter(color: color, strokeWidth: strokeWidth, gap: gap),
+          painter: DashRectPainter(
+            color: color,
+            strokeWidth: strokeWidth,
+            gap: gap,
+            shadowColor: shadowColor,
+          ),
         ),
       ),
     );
@@ -25,11 +33,15 @@ class DashedRect extends StatelessWidget {
 
 class DashRectPainter extends CustomPainter {
   double strokeWidth;
-  Color color;
+  Color color, shadowColor;
   double gap;
 
-  DashRectPainter(
-      {this.strokeWidth = 5.0, this.color = Colors.red, this.gap = 5.0});
+  DashRectPainter({
+    this.strokeWidth = 5.0,
+    this.color = Colors.red,
+    this.shadowColor = Colors.transparent,
+    this.gap = 5.0,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -66,10 +78,13 @@ class DashRectPainter extends CustomPainter {
     );
 
     canvas.drawPath(_topPath, dashedPaint);
-    canvas.drawShadow(_topPath, Colors.black, 4, false);
     canvas.drawPath(_rightPath, dashedPaint);
     canvas.drawPath(_bottomPath, dashedPaint);
     canvas.drawPath(_leftPath, dashedPaint);
+    canvas.drawPath(_topPath, dashedPaint..color = shadowColor);
+    canvas.drawPath(_rightPath, dashedPaint..color = shadowColor);
+    canvas.drawPath(_bottomPath, dashedPaint..color = shadowColor);
+    canvas.drawPath(_leftPath, dashedPaint..color = shadowColor);
   }
 
   Path getDashedPath({

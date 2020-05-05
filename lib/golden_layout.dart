@@ -442,6 +442,8 @@ class _WindowAcceptRegionState extends State<WindowAcceptRegion> {
             IgnorePointer(
               child: DashedRect(
                 color: accepting ? Colors.white : Colors.transparent,
+                shadowColor:
+                    accepting ? Colors.grey.shade300 : Colors.transparent,
                 strokeWidth: 2.0,
                 gap: 5.0,
               ),
