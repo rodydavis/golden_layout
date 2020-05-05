@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Flutter Golden Layout'),
     );
   }
 }
@@ -49,7 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
         actions: [
           IconButton(
             tooltip: 'Add Window',
-            icon: Icon(Icons.add),
+            icon: Icon(Icons.restore),
             onPressed: () {
               if (mounted)
                 setState(() {
@@ -60,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           IconButton(
             tooltip: 'Add Group',
-            icon: Icon(Icons.tab),
+            icon: Icon(Icons.list),
             onPressed: () {
               if (mounted)
                 setState(() {
@@ -72,7 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           IconButton(
             tooltip: 'Add Row',
-            icon: Icon(Icons.list),
+            icon: Icon(Icons.category),
             onPressed: () {
               if (mounted)
                 setState(() {
