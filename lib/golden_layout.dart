@@ -8,14 +8,17 @@ import 'src/window_group.dart';
 export 'src/controller.dart';
 export 'src/tab.dart';
 export 'src/window.dart';
+export 'src/theme.dart';
 
 class GoldenLayout extends StatefulWidget {
   final WindowController controller;
   final Size popupSize;
+  final WindowCollection collection;
 
   const GoldenLayout({
     Key key,
     @required this.controller,
+    this.collection,
     this.popupSize = const Size(450, 300),
   }) : super(key: key);
 
@@ -29,6 +32,9 @@ class _GoldenLayoutState extends State<GoldenLayout> {
   @override
   void initState() {
     _controller = widget?.controller ?? WindowController();
+    if (widget?.collection != null) {
+      _controller.base = widget.collection;
+    }
     super.initState();
   }
 
@@ -53,12 +59,14 @@ class _GoldenLayoutState extends State<GoldenLayout> {
                 _controller.exitFullScreen();
               });
           },
-          onClose: () {
-            if (mounted)
-              setState(() {
-                _controller.exitFullScreen(true);
-              });
-          },
+          onClose: !_controller.fullScreen.canClose
+              ? null
+              : () {
+                  if (mounted)
+                    setState(() {
+                      _controller.exitFullScreen(true);
+                    });
+                },
           update: () {
             if (mounted) setState(() {});
           },
@@ -198,15 +206,17 @@ class _GoldenLayoutState extends State<GoldenLayout> {
               _controller.enterFullScreen(item, onClose);
             });
         },
-        onClose: () {
-          if (mounted)
-            setState(() {
-              item.close();
-            });
-          if (item.tabs.isEmpty) {
-            onClose(item);
-          }
-        },
+        onClose: !item.canClose
+            ? null
+            : () {
+                if (mounted)
+                  setState(() {
+                    item.close();
+                  });
+                if (item.tabs.isEmpty) {
+                  onClose(item);
+                }
+              },
         update: () {
           if (mounted) setState(() {});
         },

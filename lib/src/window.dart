@@ -17,6 +17,11 @@ class WindowColumn extends WindowCollection {
 }
 
 class WindowGroup extends WindowCollection {
+  WindowGroup([WindowTab tab, bool closeable = true]) {
+    if (tab != null) _tabs.add(tab);
+    canClose = closeable;
+  }
+  bool canClose = true;
   final List<WindowTab> _tabs = [];
   List<WindowTab> get tabs => _tabs;
   int _activeTab = 0;
@@ -43,8 +48,7 @@ class WindowGroup extends WindowCollection {
   }
 
   void close() {
+    if (!canClose) return;
     _tabs.clear();
   }
-
-  void restore() {}
 }

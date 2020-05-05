@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'border_accept.dart';
 import 'tab.dart';
+import 'theme.dart';
 import 'window.dart';
 
 enum WindowPos { top, left, bottom, right }
@@ -30,6 +31,8 @@ class RenderWindowGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final _theme =
+        GoldenLayoutTheme.of(context)?.theme ?? GoldenLayoutThemeData();
     return Column(
       children: [
         Container(
@@ -37,127 +40,147 @@ class RenderWindowGroup extends StatelessWidget {
           height: 32,
           child: Row(
             children: [
-              Container(width: 4),
-              for (var i = 0; i < group.tabs.length; i++)
-                Draggable<WindowTab>(
-                  data: group.tabs[i],
-                  dragAnchor: DragAnchor.pointer,
-                  onDragStarted: () {
-                    group.removeTab(group.tabs[i]);
-                    update();
-                    if (group.tabs.isEmpty) onClose();
-                    onDraggingChanged(true);
-                  },
-                  onDragCompleted: () {
-                    onDraggingChanged(false);
-                  },
-                  onDragEnd: (_) {
-                    onDraggingChanged(false);
-                  },
-                  onDraggableCanceled: (_, __) {
-                    onDraggingChanged(false);
-                  },
-                  feedback: Column(
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Material(
-                        elevation: 8,
-                        color: Colors.grey.shade600,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(5),
-                          topRight: Radius.circular(5),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            group.tabs[i].title,
-                            style: TextStyle(color: Colors.white),
+                      Container(width: 4),
+                      for (var i = 0; i < group.tabs.length; i++)
+                        Draggable<WindowTab>(
+                          data: group.tabs[i],
+                          dragAnchor: DragAnchor.pointer,
+                          onDragStarted: () {
+                            group.removeTab(group.tabs[i]);
+                            update();
+                            if (group.tabs.isEmpty) onClose();
+                            onDraggingChanged(true);
+                          },
+                          onDragCompleted: () {
+                            onDraggingChanged(false);
+                          },
+                          onDragEnd: (_) {
+                            onDraggingChanged(false);
+                          },
+                          onDraggableCanceled: (_, __) {
+                            onDraggingChanged(false);
+                          },
+                          feedback: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Material(
+                                elevation: 8,
+                                color: _theme?.tabSelectedBackgroundColor ??
+                                    Colors.grey.shade600,
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(5),
+                                  topRight: Radius.circular(5),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    group.tabs[i].title,
+                                    style: TextStyle(
+                                      color: _theme?.tabLabelTextColor ??
+                                          Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox.fromSize(
+                                size: popUpSize,
+                                child: Material(
+                                  elevation: 8,
+                                  child: group.tabs[i].child,
+                                ),
+                              ),
+                            ],
+                          ),
+                          child: InkWell(
+                            onTap: () {
+                              group.selectTab(i);
+                              update();
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: i == group.activeTabIndex
+                                    ? _theme?.tabSelectedBackgroundColor ??
+                                        Colors.grey.shade600
+                                    : null,
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(5),
+                                  topRight: Radius.circular(5),
+                                ),
+                              ),
+                              height: double.infinity,
+                              padding: EdgeInsets.only(
+                                left: 4,
+                                right: 4,
+                                bottom: 4,
+                              ),
+                              margin: EdgeInsets.only(
+                                top: 4,
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    group.tabs[i].title,
+                                    style: TextStyle(
+                                      color: _theme?.tabLabelTextColor ??
+                                          Colors.white,
+                                    ),
+                                  ),
+                                  if (group.tabs[i].canClose) ...[
+                                    Container(width: 4),
+                                    InkWell(
+                                      child: Icon(
+                                        Icons.close,
+                                        size: 18,
+                                        color: _theme?.tabIconColor ??
+                                            Colors.white,
+                                      ),
+                                      onTap: () {
+                                        group.removeTab(group.tabs[i]);
+                                        update();
+                                        if (group.tabs.isEmpty) onClose();
+                                      },
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                      SizedBox.fromSize(
-                        size: popUpSize,
-                        child: Material(
-                          elevation: 8,
-                          child: group.tabs[i].child,
+                      if (isDragging)
+                        WindowAcceptRegion(
+                          size: Size(100, 32),
+                          onAccept: (val) {
+                            group.addTab(val);
+                            update();
+                          },
                         ),
-                      ),
                     ],
                   ),
-                  child: InkWell(
-                    onTap: () {
-                      group.selectTab(i);
-                      update();
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: i == group.activeTabIndex
-                            ? Colors.grey.shade600
-                            : null,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(5),
-                          topRight: Radius.circular(5),
-                        ),
-                      ),
-                      padding: EdgeInsets.only(
-                        left: 4,
-                        right: 4,
-                        bottom: 4,
-                      ),
-                      margin: EdgeInsets.only(
-                        top: 4,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            group.tabs[i].title,
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                          Container(width: 4),
-                          InkWell(
-                            child: Icon(
-                              Icons.close,
-                              size: 18,
-                              color: Colors.white,
-                            ),
-                            onTap: () {
-                              group.removeTab(group.tabs[i]);
-                              update();
-                              if (group.tabs.isEmpty) onClose();
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
                 ),
-              if (isDragging)
-                WindowAcceptRegion(
-                  size: Size(100, 32),
-                  onAccept: (val) {
-                    group.addTab(val);
-                    update();
-                  },
-                ),
-              Spacer(),
+              ),
               IconButton(
-                color: Colors.white,
+                color: _theme?.tabIconColor ?? Colors.white,
                 iconSize: 18,
                 icon: Icon(minimize ? Icons.minimize : Icons.fullscreen),
                 onPressed: onFullScreen,
               ),
-              IconButton(
-                color: Colors.white,
-                iconSize: 18,
-                icon: Icon(Icons.close),
-                onPressed: onClose,
-              ),
+              if (onClose != null)
+                IconButton(
+                  color: _theme?.tabIconColor ?? Colors.white,
+                  iconSize: 18,
+                  icon: Icon(Icons.close),
+                  onPressed: onClose,
+                ),
             ],
           ),
         ),

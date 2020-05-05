@@ -13,6 +13,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        accentColor: Colors.red,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: MyHomePage(title: 'Flutter Golden Layout'),
@@ -35,8 +36,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    final _group = WindowGroup();
-    _group.addTab(_getTab(_count++));
+    final _group = WindowGroup(_getTab(_count++), false);
     (_controller.base as WindowColumn).children.add(_group);
     super.initState();
   }
@@ -53,8 +53,9 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: () {
               if (mounted)
                 setState(() {
-                  _controller.base =
-                      WindowColumn([WindowGroup()..addTab(_getTab(_count++))]);
+                  _controller.base = WindowColumn(
+                    [WindowGroup(_getTab(_count++))],
+                  );
                 });
             },
           ),
@@ -64,8 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: () {
               if (mounted)
                 setState(() {
-                  final _group = WindowGroup();
-                  _group.addTab(_getTab(_count++));
+                  final _group = WindowGroup(_getTab(_count++));
                   (_controller.base as WindowColumn).children.add(_group);
                 });
             },
@@ -86,8 +86,13 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-      body: GoldenLayout(
-        controller: _controller,
+      body: GoldenLayoutTheme(
+        data: GoldenLayoutThemeData(
+          tabSelectedBackgroundColor: Theme.of(context).accentColor,
+        ),
+        child: GoldenLayout(
+          controller: _controller,
+        ),
       ),
     );
   }
