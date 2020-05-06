@@ -19,7 +19,13 @@ class WindowController {
 
   WindowCollection base = WindowColumn([]);
 
-  void addToBase(WindowTab tab) => _addTab(base, tab);
+  void addToBase(WindowTab tab) {
+    if (base == null) {
+      base = WindowColumn([WindowGroup(tab)]);
+    } else {
+      _addTab(base, tab);
+    }
+  }
 
   bool _addTab(WindowCollection item, WindowTab tab) {
     if (item is WindowGroup) {
