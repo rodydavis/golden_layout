@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-abstract class WindowCollection {
+abstract class WindowCollection extends ChangeNotifier {
   double flex = 1;
 }
 
 class WindowTab {
   final String id;
-  final Function (BuildContext, bool selected) title;
+  final Function(BuildContext, bool selected) title;
   final Widget child;
   final bool canClose;
 
@@ -42,27 +42,28 @@ class WindowGroup extends WindowCollection {
   int get activeTabIndex => _activeTab;
 
   void selectTab(int index) {
-    _activeTab = index;
+    _activeTab = index; notifyListeners();
   }
 
   void init(List<WindowTab> tabs) {
-    _tabs.addAll(tabs);
+    _tabs.addAll(tabs); notifyListeners();
   }
 
   void addTab(WindowTab tab) {
     _tabs.add(tab);
-    _activeTab = _tabs.length - 1;
+    _activeTab = _tabs.length - 1; notifyListeners();
   }
 
   void removeTab(WindowTab tab) {
     _tabs.remove(tab);
     if (_activeTab > _tabs.length - 1) {
       _activeTab = _tabs.length - 1;
-    }
+    } notifyListeners();
   }
 
   void close() {
     if (!canClose) return;
     _tabs.clear();
+    notifyListeners();
   }
 }
