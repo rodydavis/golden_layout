@@ -18,4 +18,31 @@ class WindowController {
   }
 
   WindowCollection base = WindowColumn([]);
+
+  void addToBase(WindowTab tab) => _addTab(base, tab);
+
+  bool _addTab(WindowCollection item, WindowTab tab) {
+    if (item is WindowGroup) {
+      item.addTab(tab);
+      item.update();
+      return true;
+    }
+    if (item is WindowColumn) {
+      for (final child in item.children) {
+        if (_addTab(child, tab)) {
+          child.update();
+          return true;
+        }
+      }
+    }
+    if (item is WindowRow) {
+      for (final child in item.children) {
+        if (_addTab(child, tab)) {
+          child.update();
+          return true;
+        }
+      }
+    }
+    return false;
+  }
 }

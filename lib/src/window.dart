@@ -54,9 +54,14 @@ class WindowGroup extends WindowCollection {
     notifyListeners();
   }
 
-  void addTab(WindowTab tab) {
-    _tabs.add(tab);
-    _activeTab = _tabs.length - 1;
+  void addTab(WindowTab tab, [int index]) {
+    if (index != null) {
+      _tabs.insert(index, tab);
+      _activeTab = index;
+    } else {
+      _tabs.add(tab);
+      _activeTab = _tabs.length - 1;
+    }
     notifyListeners();
   }
 

@@ -42,6 +42,9 @@ class _GoldenLayoutState extends State<GoldenLayout> {
     return LayoutBuilder(builder: (context, dimens) {
       if (_controller.fullScreen != null) {
         return RenderWindowGroup(
+          onCancel: (val) {
+            _controller.addToBase(val);
+          },
           isDragging: _isDragging,
           onDraggingChanged: (val) {
             if (mounted)
@@ -190,6 +193,9 @@ class _GoldenLayoutState extends State<GoldenLayout> {
     }
     if (item is WindowGroup) {
       return RenderWindowGroup(
+        onCancel: (val) {
+          _controller.addToBase(val);
+        },
         onDraggingChanged: (val) {
           if (mounted)
             setState(() {
@@ -219,7 +225,7 @@ class _GoldenLayoutState extends State<GoldenLayout> {
         update: () {
           if (mounted) setState(() {});
         },
-        onModify: (context, tab, pos) {
+        onModify: (context, tab, pos, [index]) {
           final _group = WindowGroup()..addTab(tab);
           switch (pos) {
             case WindowPos.top:
@@ -233,6 +239,10 @@ class _GoldenLayoutState extends State<GoldenLayout> {
               break;
             case WindowPos.right:
               onChanged(WindowRow([item, _group]));
+              break;
+            case WindowPos.tab:
+              item.addTab(tab, index);
+              onChanged(item);
               break;
           }
           if (mounted) setState(() {});
