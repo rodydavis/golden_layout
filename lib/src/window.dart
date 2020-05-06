@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 abstract class WindowCollection extends ChangeNotifier {
   double flex = 1;
+  void update() {
+    notifyListeners();
+  }
 }
 
 class WindowTab {
@@ -42,23 +45,27 @@ class WindowGroup extends WindowCollection {
   int get activeTabIndex => _activeTab;
 
   void selectTab(int index) {
-    _activeTab = index; notifyListeners();
+    _activeTab = index;
+    notifyListeners();
   }
 
   void init(List<WindowTab> tabs) {
-    _tabs.addAll(tabs); notifyListeners();
+    _tabs.addAll(tabs);
+    notifyListeners();
   }
 
   void addTab(WindowTab tab) {
     _tabs.add(tab);
-    _activeTab = _tabs.length - 1; notifyListeners();
+    _activeTab = _tabs.length - 1;
+    notifyListeners();
   }
 
   void removeTab(WindowTab tab) {
     _tabs.remove(tab);
     if (_activeTab > _tabs.length - 1) {
       _activeTab = _tabs.length - 1;
-    } notifyListeners();
+    }
+    notifyListeners();
   }
 
   void close() {
