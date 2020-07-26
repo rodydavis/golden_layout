@@ -15,16 +15,18 @@ class _HorizontalDragBarState extends State<HorizontalDragBar> {
   Widget build(BuildContext context) {
     return MouseRegion(
       onEnter: (_) {
-        if (mounted)
+        if (mounted) {
           setState(() {
             _onHover = true;
           });
+        }
       },
       onExit: (_) {
-        if (mounted)
+        if (mounted) {
           setState(() {
             _onHover = false;
           });
+        }
       },
       child: Divider(
         height: 8,
@@ -50,16 +52,18 @@ class _VerticalDragBarState extends State<VerticalDragBar> {
   Widget build(BuildContext context) {
     return MouseRegion(
       onEnter: (_) {
-        if (mounted)
+        if (mounted) {
           setState(() {
             _onHover = true;
           });
+        }
       },
       onExit: (_) {
-        if (mounted)
+        if (mounted) {
           setState(() {
             _onHover = false;
           });
+        }
       },
       child: VerticalDivider(
         width: 8,

@@ -2,16 +2,21 @@ import 'package:flutter/material.dart';
 
 class GoldenLayoutThemeData {
   final Color tabSelectedBackgroundColor;
-  final Color backgroundColor;
+  Color tabBackgroundColor;
+  Color backgroundColor;
   final Color draggableBarsHoveredColor;
   final Color tabIconColor;
 
-  const GoldenLayoutThemeData({
+  GoldenLayoutThemeData({
     this.tabSelectedBackgroundColor = Colors.grey,
-    this.backgroundColor = Colors.black,
+    this.backgroundColor,
     this.draggableBarsHoveredColor = Colors.grey,
     this.tabIconColor = Colors.white,
-  });
+    this.tabBackgroundColor,
+  }) {
+    tabBackgroundColor ??= Colors.grey.shade700;
+    backgroundColor ??= Colors.grey.shade800;
+  }
 }
 
 class GoldenLayoutTheme extends InheritedWidget {
@@ -22,6 +27,7 @@ class GoldenLayoutTheme extends InheritedWidget {
   }) : super(key: key, child: child);
 
   final GoldenLayoutThemeData data;
+  @override
   final Widget child;
 
   GoldenLayoutThemeData get theme => data ?? GoldenLayoutThemeData();

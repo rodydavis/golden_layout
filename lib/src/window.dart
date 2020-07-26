@@ -9,16 +9,17 @@ abstract class WindowCollection extends ChangeNotifier {
 
 class WindowTab {
   final String id;
-  final Function(BuildContext, bool selected) title;
+  final Widget Function(BuildContext, bool selected, int index) title;
   final Widget child;
   final bool canClose;
+  final Function() onClose;
 
-  WindowTab({
-    @required this.id,
-    @required this.title,
-    this.child,
-    this.canClose = true,
-  });
+  WindowTab(
+      {@required this.id,
+      @required this.title,
+      this.child,
+      this.canClose = true,
+      this.onClose});
 }
 
 class WindowRow extends WindowCollection {

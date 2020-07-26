@@ -50,24 +50,27 @@ class _WindowAcceptRegionState extends State<WindowAcceptRegion> {
                 child: DragTarget<WindowTab>(
                   builder: (context, accepted, rejected) => Container(),
                   onAccept: (val) {
-                    if (mounted)
+                    if (mounted) {
                       setState(() {
                         accepting = false;
                       });
+                    }
                     if (widget.onAccept != null) widget.onAccept(val);
                   },
                   onWillAccept: (val) {
-                    if (mounted)
+                    if (mounted) {
                       setState(() {
                         accepting = true;
                       });
+                    }
                     return true;
                   },
                   onLeave: (_) {
-                    if (mounted)
+                    if (mounted) {
                       setState(() {
                         accepting = false;
                       });
+                    }
                   },
                 ),
               ),
