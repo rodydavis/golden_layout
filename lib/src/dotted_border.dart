@@ -45,33 +45,33 @@ class DashRectPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    Paint dashedPaint = Paint()
+    var dashedPaint = Paint()
       ..color = color
       ..strokeWidth = strokeWidth
       ..style = PaintingStyle.stroke;
 
-    double x = size.width;
-    double y = size.height;
+    var x = size.width;
+    var y = size.height;
 
-    Path _topPath = getDashedPath(
+    var _topPath = getDashedPath(
       a: math.Point(0, 0),
       b: math.Point(x, 0),
       gap: gap,
     );
 
-    Path _rightPath = getDashedPath(
+    var _rightPath = getDashedPath(
       a: math.Point(x, 0),
       b: math.Point(x, y),
       gap: gap,
     );
 
-    Path _bottomPath = getDashedPath(
+    var _bottomPath = getDashedPath(
       a: math.Point(0, y),
       b: math.Point(x, y),
       gap: gap,
     );
 
-    Path _leftPath = getDashedPath(
+    var _leftPath = getDashedPath(
       a: math.Point(0, 0),
       b: math.Point(0.001, y),
       gap: gap,
@@ -89,13 +89,13 @@ class DashRectPainter extends CustomPainter {
   Path getDashedPath({
     @required math.Point<double> a,
     @required math.Point<double> b,
-    @required gap,
+    @required num gap,
   }) {
-    Size size = Size(b.x - a.x, b.y - a.y);
-    Path path = Path();
+    var size = Size(b.x - a.x, b.y - a.y);
+    var path = Path();
     path.moveTo(a.x, a.y);
-    bool shouldDraw = true;
-    math.Point currentPoint = math.Point(a.x, a.y);
+    var shouldDraw = true;
+    var currentPoint = math.Point(a.x, a.y);
 
     num radians = math.atan(size.height / size.width);
 

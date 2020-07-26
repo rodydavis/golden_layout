@@ -16,6 +16,7 @@ class RenderWindowGroup extends StatefulWidget {
   final void Function(WindowTab) onCancel;
   final ValueChanged<bool> onDraggingChanged;
   final void Function(BuildContext, WindowTab, WindowPos, [int index]) onModify;
+  final WindowTab Function() onAddTab;
 
   const RenderWindowGroup({
     Key key,
@@ -29,6 +30,7 @@ class RenderWindowGroup extends StatefulWidget {
     @required this.onDraggingChanged,
     @required this.isDragging,
     this.onModify,
+    @required this.onAddTab,
   }) : super(key: key);
 
   @override
@@ -38,6 +40,17 @@ class RenderWindowGroup extends StatefulWidget {
 class _RenderWindowGroupState extends State<RenderWindowGroup> {
   int accepting;
   WindowTab _draggingTab;
+
+  @override
+  void initState() {
+    widget.group.addListener(() {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final _theme =
@@ -45,7 +58,7 @@ class _RenderWindowGroupState extends State<RenderWindowGroup> {
     return Column(
       children: [
         Container(
-          color: Colors.black,
+          color: _theme?.backgroundColor,
           height: 32,
           child: Row(
             children: [
@@ -57,14 +70,16 @@ class _RenderWindowGroupState extends State<RenderWindowGroup> {
                     children: [
                       Container(width: 4),
                       for (var i = 0; i < widget.group.tabs.length; i++)
-                        LongPressDraggable<WindowTab>(
+                        Draggable<WindowTab>(
                           data: widget.group.tabs[i],
-                          dragAnchor: DragAnchor.pointer,
+                          dragAnchor: DragAnchor.child,
                           onDragStarted: () {
                             _draggingTab = widget.group.tabs[i];
                             widget.group.removeTab(_draggingTab);
                             widget.update();
-                            if (widget.group.tabs.isEmpty) widget.onClose();
+                            if (widget.group.tabs.isEmpty) {
+                              widget.onClose?.call();
+                            }
                             widget.onDraggingChanged(true);
                           },
                           onDragCompleted: () {
@@ -95,40 +110,43 @@ class _RenderWindowGroupState extends State<RenderWindowGroup> {
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: widget.group.tabs[i]
-                                      .title(context, false),
+                                      .title(context, false, i),
                                 ),
                               ),
                               SizedBox.fromSize(
                                 size: widget.popUpSize,
-                                child: Material(
-                                  elevation: 8,
-                                  child: widget.group.tabs[i].child,
-                                ),
+                                child:
+                                    Material(elevation: 8, child: Container()),
                               ),
                             ],
                           ),
                           child: DragTarget<WindowTab>(
                             onLeave: (_) {
-                              if (mounted)
+                              if (mounted) {
                                 setState(() {
                                   accepting = null;
                                 });
+                              }
                             },
                             onWillAccept: (val) {
-                              if (mounted)
+                              if (mounted) {
                                 setState(() {
                                   accepting = i;
                                 });
+                              }
                               return true;
                             },
                             onAccept: (val) {
-                              widget.onModify(context, val, WindowPos.tab, accepting);
-                              if (mounted)
+                              widget.onModify(
+                                  context, val, WindowPos.tab, accepting);
+                              if (mounted) {
                                 setState(() {
                                   accepting = null;
                                 });
+                              }
                             },
                             builder: (context, accepted, rejected) {
+                              final selected = i == widget.group.activeTabIndex;
                               return InkWell(
                                 onTap: () {
                                   widget.group.selectTab(i);
@@ -136,21 +154,18 @@ class _RenderWindowGroupState extends State<RenderWindowGroup> {
                                 },
                                 child: Container(
                                   decoration: BoxDecoration(
-                                    color: i == widget.group.activeTabIndex
+                                    color: selected
                                         ? _theme?.tabSelectedBackgroundColor ??
                                             Colors.grey.shade600
+                                        : _theme?.backgroundColor,
+                                    borderRadius: selected
+                                        ? BorderRadius.only(
+                                            topLeft: Radius.circular(5),
+                                            topRight: Radius.circular(5),
+                                          )
                                         : null,
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(5),
-                                      topRight: Radius.circular(5),
-                                    ),
                                   ),
                                   height: double.infinity,
-                                  padding: EdgeInsets.only(
-                                    left: 4,
-                                    right: 4,
-                                    bottom: 4,
-                                  ),
                                   margin: EdgeInsets.only(
                                     top: 4,
                                   ),
@@ -162,7 +177,7 @@ class _RenderWindowGroupState extends State<RenderWindowGroup> {
                                       if (accepting != i)
                                         Container(
                                           child: widget.group.tabs[i]
-                                              .title(context, false),
+                                              .title(context, false, i),
                                         ),
                                       if (accepting == i)
                                         Container(
@@ -175,7 +190,8 @@ class _RenderWindowGroupState extends State<RenderWindowGroup> {
                                             gap: 5.0,
                                           ),
                                         ),
-                                      if (widget.group.tabs[i].canClose) ...[
+                                      if (widget.group.tabs[i].canClose &&
+                                          selected) ...[
                                         Container(width: 4),
                                         InkWell(
                                           child: Icon(
@@ -185,14 +201,25 @@ class _RenderWindowGroupState extends State<RenderWindowGroup> {
                                                 Colors.white,
                                           ),
                                           onTap: () {
+                                            widget.group.tabs[i].onClose
+                                                ?.call();
                                             widget.group.removeTab(
                                                 widget.group.tabs[i]);
                                             widget.update();
-                                            if (widget.group.tabs.isEmpty)
-                                              widget.onClose();
+                                            if (widget.group.tabs.isEmpty) {
+                                              widget.onClose?.call();
+                                            }
                                           },
                                         ),
                                       ],
+                                      if (!selected &&
+                                          i + 1 != widget.group.activeTabIndex)
+                                        VerticalDivider(
+                                          indent: 4,
+                                          width: 1,
+                                          thickness: 1,
+                                          color: Colors.grey.shade500,
+                                        ),
                                     ],
                                   ),
                                 ),
@@ -200,6 +227,15 @@ class _RenderWindowGroupState extends State<RenderWindowGroup> {
                             },
                           ),
                         ),
+                      if (widget.onAddTab != null)
+                        IconButton(
+                            iconSize: 20,
+                            icon: Icon(
+                              Icons.add,
+                              color: Colors.white,
+                            ),
+                            onPressed: () =>
+                                widget.group.addTab(widget.onAddTab())),
                       if (widget.isDragging)
                         WindowAcceptRegion(
                           size: Size(100, 32),
