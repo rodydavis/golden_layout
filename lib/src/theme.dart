@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 class GoldenLayoutThemeData {
   final Color tabSelectedBackgroundColor;
-  Color tabBackgroundColor;
-  Color backgroundColor;
+  Color? tabBackgroundColor;
+  Color? backgroundColor;
   final Color draggableBarsHoveredColor;
   final Color tabIconColor;
 
@@ -21,18 +21,18 @@ class GoldenLayoutThemeData {
 
 class GoldenLayoutTheme extends InheritedWidget {
   GoldenLayoutTheme({
-    Key key,
-    @required this.child,
-    @required this.data,
+    Key? key,
+    required this.child,
+    this.data,
   }) : super(key: key, child: child);
 
-  final GoldenLayoutThemeData data;
+  final GoldenLayoutThemeData? data;
   @override
   final Widget child;
 
   GoldenLayoutThemeData get theme => data ?? GoldenLayoutThemeData();
 
-  static GoldenLayoutTheme of(BuildContext context) {
+  static GoldenLayoutTheme? of(BuildContext context) {
     return (context.dependOnInheritedWidgetOfExactType<GoldenLayoutTheme>());
   }
 

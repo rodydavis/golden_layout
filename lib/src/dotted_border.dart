@@ -87,9 +87,9 @@ class DashRectPainter extends CustomPainter {
   }
 
   Path getDashedPath({
-    @required math.Point<double> a,
-    @required math.Point<double> b,
-    @required num gap,
+    required math.Point<double> a,
+    required math.Point<double> b,
+    required num gap,
   }) {
     var size = Size(b.x - a.x, b.y - a.y);
     var path = Path();

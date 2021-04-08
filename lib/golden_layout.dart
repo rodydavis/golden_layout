@@ -10,15 +10,15 @@ export 'src/theme.dart';
 export 'src/window.dart';
 
 class GoldenLayout extends StatefulWidget {
-  final WindowController controller;
+  final WindowController? controller;
   final Size popupSize;
-  final WindowCollection collection;
-  final WindowTab Function() onAddTab;
-  final Function() onCloseTab;
+  final WindowCollection? collection;
+  final WindowTab Function()? onAddTab;
+  final Function()? onCloseTab;
 
   const GoldenLayout({
-    Key key,
-    @required this.controller,
+    Key? key,
+    this.controller,
     this.collection,
     this.popupSize = const Size(450, 300),
     this.onAddTab,
@@ -30,12 +30,12 @@ class GoldenLayout extends StatefulWidget {
 }
 
 class _GoldenLayoutState extends State<GoldenLayout> {
-  WindowController _controller;
+  late WindowController _controller;
 
   @override
   void initState() {
-    _controller = widget?.controller ?? WindowController();
-    if (widget?.collection != null) {
+    _controller = widget.controller ?? WindowController();
+    if (widget.collection != null) {
       _controller.base = widget.collection;
     }
     super.initState();
@@ -60,7 +60,7 @@ class _GoldenLayoutState extends State<GoldenLayout> {
           },
           popUpSize: widget.popupSize,
           minimize: true,
-          group: _controller.fullScreen,
+          group: _controller.fullScreen!,
           onFullScreen: () {
             if (mounted) {
               setState(() {
@@ -68,7 +68,7 @@ class _GoldenLayoutState extends State<GoldenLayout> {
               });
             }
           },
-          onClose: !_controller.fullScreen.canClose
+          onClose: !_controller.fullScreen!.canClose
               ? null
               : () {
                   if (mounted) {
@@ -105,11 +105,11 @@ class _GoldenLayoutState extends State<GoldenLayout> {
   }
 
   Widget _renderItem(
-    WindowCollection item, {
-    @required int index,
-    @required Size size,
-    @required ValueChanged<WindowCollection> onChanged,
-    @required ValueChanged<WindowCollection> onClose,
+    WindowCollection? item, {
+    required int index,
+    required Size size,
+    required ValueChanged<WindowCollection> onChanged,
+    required ValueChanged<WindowCollection?> onClose,
   }) {
     if (item is WindowColumn) {
       return Column(

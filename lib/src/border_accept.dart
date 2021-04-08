@@ -5,7 +5,7 @@ import 'window.dart';
 
 class WindowAcceptRegion extends StatefulWidget {
   const WindowAcceptRegion({
-    Key key,
+    Key? key,
     this.onAccept,
     this.top,
     this.left,
@@ -14,9 +14,9 @@ class WindowAcceptRegion extends StatefulWidget {
     this.size,
   }) : super(key: key);
 
-  final void Function(WindowTab) onAccept;
-  final double top, left, right, bottom;
-  final Size size;
+  final void Function(WindowTab)? onAccept;
+  final double? top, left, right, bottom;
+  final Size? size;
 
   @override
   _WindowAcceptRegionState createState() => _WindowAcceptRegionState();
@@ -55,7 +55,7 @@ class _WindowAcceptRegionState extends State<WindowAcceptRegion> {
                         accepting = false;
                       });
                     }
-                    if (widget.onAccept != null) widget.onAccept(val);
+                    if (widget.onAccept != null) widget.onAccept!(val);
                   },
                   onWillAccept: (val) {
                     if (mounted) {

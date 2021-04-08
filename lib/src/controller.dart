@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'window.dart';
 
 class WindowController extends ChangeNotifier {
-  WindowGroup _fullScreenGroup;
-  WindowGroup get fullScreen => _fullScreenGroup;
-  void Function(WindowGroup) _closeWindow;
+  WindowGroup? _fullScreenGroup;
+  WindowGroup? get fullScreen => _fullScreenGroup;
+  late void Function(WindowGroup?) _closeWindow;
 
-  void enterFullScreen(WindowGroup val, void Function(WindowGroup) onClose) {
+  void enterFullScreen(WindowGroup val, void Function(WindowGroup?) onClose) {
     _fullScreenGroup = val;
     _closeWindow = onClose;
     notifyListeners();
@@ -21,7 +21,7 @@ class WindowController extends ChangeNotifier {
     notifyListeners();
   }
 
-  WindowCollection base = WindowColumn([]);
+  WindowCollection? base = WindowColumn([]);
 
   void addToBase(WindowTab tab) {
     if (base == null) {
@@ -32,7 +32,7 @@ class WindowController extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool _addTab(WindowCollection item, WindowTab tab) {
+  bool _addTab(WindowCollection? item, WindowTab tab) {
     if (item is WindowGroup) {
       item.addTab(tab);
       item.update();
