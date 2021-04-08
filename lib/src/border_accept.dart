@@ -27,7 +27,7 @@ class _WindowAcceptRegionState extends State<WindowAcceptRegion> {
   @override
   Widget build(BuildContext context) {
     return SizedBox.fromSize(
-      size: widget?.size,
+      size: widget.size,
       child: LayoutBuilder(
         builder: (context, dimens) => Stack(
           fit: StackFit.expand,
@@ -42,10 +42,10 @@ class _WindowAcceptRegionState extends State<WindowAcceptRegion> {
               ),
             ),
             Positioned.fill(
-              left: widget?.left ?? 0,
-              right: widget?.right ?? 0,
-              top: widget?.top ?? 0,
-              bottom: widget?.bottom ?? 0,
+              left: widget.left ?? 0,
+              right: widget.right ?? 0,
+              top: widget.top ?? 0,
+              bottom: widget.bottom ?? 0,
               child: Container(
                 child: DragTarget<WindowTab>(
                   builder: (context, accepted, rejected) => Container(),

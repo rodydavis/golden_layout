@@ -77,7 +77,7 @@ class _RenderWindowGroupState extends State<RenderWindowGroup> {
                       for (var i = 0; i < widget.group.tabs.length; i++)
                         Draggable<WindowTab>(
                           data: widget.group.tabs[i],
-                          dragAnchor: DragAnchor.child,
+                          dragAnchorStrategy: childDragAnchorStrategy,
                           onDragStarted: () {
                             _draggingTab = widget.group.tabs[i];
                             widget.group.removeTab(_draggingTab);
