@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class HorizontalDragBar extends StatefulWidget {
   const HorizontalDragBar({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -39,7 +39,7 @@ class _HorizontalDragBarState extends State<HorizontalDragBar> {
 
 class VerticalDragBar extends StatefulWidget {
   const VerticalDragBar({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override

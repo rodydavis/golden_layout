@@ -7,30 +7,35 @@ import 'window.dart';
 
 enum WindowPos { top, left, bottom, right, tab }
 
+void _noModifyAction(BuildContext context, WindowTab tab, WindowPos position,
+    [int? index]) {}
+
 class RenderWindowGroup extends StatefulWidget {
   final WindowGroup group;
-  final VoidCallback onFullScreen, onClose, update;
+  final VoidCallback onFullScreen, update;
+  final VoidCallback? onClose;
   final bool minimize;
   final Size popUpSize;
   final bool isDragging;
   final void Function(WindowTab) onCancel;
   final ValueChanged<bool> onDraggingChanged;
-  final void Function(BuildContext, WindowTab, WindowPos, [int index]) onModify;
-  final WindowTab Function() onAddTab;
+  final void Function(BuildContext, WindowTab, WindowPos, [int? index])
+      onModify;
+  final WindowTab Function()? onAddTab;
 
   const RenderWindowGroup({
-    Key key,
-    this.group,
-    this.onFullScreen,
+    Key? key,
+    required this.group,
+    required this.onFullScreen,
     this.onClose,
     this.minimize = false,
-    this.update,
-    @required this.onCancel,
-    @required this.popUpSize,
-    @required this.onDraggingChanged,
-    @required this.isDragging,
-    this.onModify,
-    @required this.onAddTab,
+    required this.update,
+    required this.onCancel,
+    required this.popUpSize,
+    required this.onDraggingChanged,
+    required this.isDragging,
+    this.onModify = _noModifyAction,
+    required this.onAddTab,
   }) : super(key: key);
 
   @override
@@ -38,8 +43,8 @@ class RenderWindowGroup extends StatefulWidget {
 }
 
 class _RenderWindowGroupState extends State<RenderWindowGroup> {
-  int accepting;
-  WindowTab _draggingTab;
+  int? accepting;
+  WindowTab? _draggingTab;
 
   @override
   void initState() {
@@ -58,7 +63,7 @@ class _RenderWindowGroupState extends State<RenderWindowGroup> {
     return Column(
       children: [
         Container(
-          color: _theme?.backgroundColor,
+          color: _theme.backgroundColor,
           height: 32,
           child: Row(
             children: [
@@ -72,7 +77,7 @@ class _RenderWindowGroupState extends State<RenderWindowGroup> {
                       for (var i = 0; i < widget.group.tabs.length; i++)
                         Draggable<WindowTab>(
                           data: widget.group.tabs[i],
-                          dragAnchor: DragAnchor.child,
+                          dragAnchorStrategy: childDragAnchorStrategy,
                           onDragStarted: () {
                             _draggingTab = widget.group.tabs[i];
                             widget.group.removeTab(_draggingTab);
@@ -92,7 +97,7 @@ class _RenderWindowGroupState extends State<RenderWindowGroup> {
                           },
                           onDraggableCanceled: (_, __) {
                             widget.onDraggingChanged(false);
-                            widget.onCancel(_draggingTab);
+                            widget.onCancel(_draggingTab!);
                             _draggingTab = null;
                           },
                           feedback: Column(
@@ -155,9 +160,8 @@ class _RenderWindowGroupState extends State<RenderWindowGroup> {
                                 child: Container(
                                   decoration: BoxDecoration(
                                     color: selected
-                                        ? _theme?.tabSelectedBackgroundColor ??
-                                            Colors.grey.shade600
-                                        : _theme?.backgroundColor,
+                                        ? _theme.tabSelectedBackgroundColor
+                                        : _theme.backgroundColor,
                                     borderRadius: selected
                                         ? BorderRadius.only(
                                             topLeft: Radius.circular(5),
@@ -194,12 +198,6 @@ class _RenderWindowGroupState extends State<RenderWindowGroup> {
                                           selected) ...[
                                         Container(width: 4),
                                         InkWell(
-                                          child: Icon(
-                                            Icons.close,
-                                            size: 18,
-                                            color: _theme?.tabIconColor ??
-                                                Colors.white,
-                                          ),
                                           onTap: () {
                                             widget.group.tabs[i].onClose
                                                 ?.call();
@@ -210,6 +208,11 @@ class _RenderWindowGroupState extends State<RenderWindowGroup> {
                                               widget.onClose?.call();
                                             }
                                           },
+                                          child: Icon(
+                                            Icons.close,
+                                            size: 18,
+                                            color: _theme.tabIconColor,
+                                          ),
                                         ),
                                       ],
                                       if (!selected &&
@@ -235,7 +238,7 @@ class _RenderWindowGroupState extends State<RenderWindowGroup> {
                               color: Colors.white,
                             ),
                             onPressed: () =>
-                                widget.group.addTab(widget.onAddTab())),
+                                widget.group.addTab(widget.onAddTab!())),
                       if (widget.isDragging)
                         WindowAcceptRegion(
                           size: Size(100, 32),
@@ -249,14 +252,14 @@ class _RenderWindowGroupState extends State<RenderWindowGroup> {
                 ),
               ),
               IconButton(
-                color: _theme?.tabIconColor ?? Colors.white,
+                color: _theme.tabIconColor,
                 iconSize: 18,
                 icon: Icon(widget.minimize ? Icons.minimize : Icons.fullscreen),
                 onPressed: widget.onFullScreen,
               ),
               if (widget.onClose != null)
                 IconButton(
-                  color: _theme?.tabIconColor ?? Colors.white,
+                  color: _theme.tabIconColor,
                   iconSize: 18,
                   icon: Icon(Icons.close),
                   onPressed: widget.onClose,
